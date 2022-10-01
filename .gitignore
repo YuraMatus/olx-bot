@@ -1,0 +1,15 @@
+# User-specific stuff:
+.idea
+*.iml
+
+### Java availabilityRule
+*.class
+
+### Gradle availabilityRule
+.gradle
+build/
+
+out
+classes/
+
+.DS_Store
