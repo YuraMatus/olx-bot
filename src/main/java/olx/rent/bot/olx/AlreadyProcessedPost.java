@@ -18,4 +18,6 @@ import javax.persistence.Table;
 public class AlreadyProcessedPost {
     @Id
     private String link;
+
+    private Long chatId;
 }

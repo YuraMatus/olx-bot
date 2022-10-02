@@ -21,6 +21,9 @@ public class ChatSettings {
     @Id
     private Long chatId;
 
-    @Column
+    @Column(columnDefinition="TEXT")
     private String linkToSearch;
+
+    @Column
+    private String personName;
 }

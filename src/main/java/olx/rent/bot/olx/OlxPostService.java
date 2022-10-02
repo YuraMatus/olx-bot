@@ -1,5 +1,6 @@
 package olx.rent.bot.olx;
 
+import org.apache.commons.validator.routines.UrlValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ public class OlxPostService {
     @Value("${olx.host}")
     private String olxHost = "https://www.olx.ua";
 
+
     public OlxPostService(OlxParser olxParser,
                           AlreadyProcessedPostDao alreadyProcessedPostDao) {
         this.alreadyProcessedPostDao = alreadyProcessedPostDao;
@@ -22,21 +24,22 @@ public class OlxPostService {
     }
 
     public List<String> getNewPostsForChat(ChatSettings chatSettings) {
+
         var allPostUrlsForChat = parser.getAllPostsUrls(chatSettings.getLinkToSearch()).stream()
                 .map(this::appendHost)
                 .toList();
 
         var normalizedLinksOfNewPosts = allPostUrlsForChat.stream()
-                .filter(link -> !alreadyProcessedPostDao.checkIfPostProcessedByLink(link))
+                .filter(link -> !alreadyProcessedPostDao.checkIfLinkProcessedForChat(link, chatSettings.getChatId()))
                 .toList();
 
-        markPostsAsProcessed(normalizedLinksOfNewPosts);
+        markPostsAsProcessed(normalizedLinksOfNewPosts, chatSettings.getChatId());
         return normalizedLinksOfNewPosts;
     }
 
-    private void markPostsAsProcessed(List<String> processedPostsUrls) {
+    private void markPostsAsProcessed(List<String> processedPostsUrls, Long chatId) {
         var processedPostsDb = processedPostsUrls.stream()
-                .map(AlreadyProcessedPost::new)
+                .map(url -> new AlreadyProcessedPost(url, chatId))
                 .toList();
         alreadyProcessedPostDao.saveAll(processedPostsDb);
     }
